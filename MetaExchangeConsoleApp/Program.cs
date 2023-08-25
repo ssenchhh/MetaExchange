@@ -1,11 +1,13 @@
 ﻿using MetaExchangeConsoleApp.Data.Providers;
+using MetaExchangeConsoleApp.Data.Repositories;
+using MetaExchangeConsoleApp.Enums;
 using MetaExchangeConsoleApp.Models;
 using MetaExchangeConsoleApp.Services;
 
 //var dataProvider = new JsonDataProvider();
 var dataProvider = new RowDataProvider<OrderBook>();
-var dataService = new DataService<OrderBook>(dataProvider);
-var exchangeService = new MetaExchangeService(dataService);
+var orderBookRepository = new OrderBookRepository(dataProvider);
+var exchangeService = new MetaExchangeService(orderBookRepository);
 MetaExchangeRequest request = new MetaExchangeRequest();
 
 request.RequestType = AskForType();
@@ -15,18 +17,18 @@ var recomendedOrders = exchangeService.GetRecommendedOrders(request);
 
 OutputResults();
 
-string AskForType()
+RequestType AskForType()
 {
     Console.Write("Do you want to buy BTC or sell BTC? Enter 'Buy' or 'Sell': ");
     var input = Console.ReadLine();
 
-    if (string.IsNullOrEmpty(input) || (input.Trim().ToLower() != "buy" && input.Trim().ToLower() != "sell"))
+    if (!Enum.TryParse<RequestType>(input, true, out RequestType type))
     {
         Console.WriteLine("Invalid input try again.");
-        input = AskForType();
+        type = AskForType();
     }
 
-    return input;
+    return type;
 }
 
 decimal AskForAmount()
