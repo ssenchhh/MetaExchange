@@ -1,19 +1,21 @@
-﻿using MetaExchangeConsoleApp.Models;
+﻿using MetaExchangeConsoleApp.Data.Repositories.Interfaces;
+using MetaExchangeConsoleApp.Enums;
+using MetaExchangeConsoleApp.Models;
 
 namespace MetaExchangeConsoleApp.Services
 {
     public class MetaExchangeService
     {
-        private readonly DataService<OrderBook> _dataService;
+        private readonly IRepository<OrderBook> _orderBookRepository;
 
-        public MetaExchangeService(DataService<OrderBook> dataService)
+        public MetaExchangeService(IRepository<OrderBook> orderBookRepository)
         {
-            _dataService = dataService;
+            _orderBookRepository = orderBookRepository;
         }
 
         public IEnumerable<Order> GetRecommendedOrders(MetaExchangeRequest request)
         {
-            var exchangers = _dataService.GetData();
+            var exchangers = _orderBookRepository.GetAll();
             exchangers = PrepareOrderBooks(exchangers);
             var balances = PrepareBalances(exchangers);
             bool isBuy;
@@ -21,13 +23,13 @@ namespace MetaExchangeConsoleApp.Services
             List<Order> ordersToProcess = new List<Order>();
             var amount = request.Amount;
 
-            if(request.RequestType == "buy")
+            if(request.RequestType == RequestType.Buy)
             {
                 isBuy = true;
                 ordersToProcess = exchangers.SelectMany(ob => ob.Asks).Select(o => o.Order).ToList();
                 ordersToProcess = ordersToProcess.OrderBy(o => o.Price).ToList();
             }
-            else if(request.RequestType == "sell")
+            else if(request.RequestType == RequestType.Sell)
             {
                 isBuy = false;
                 ordersToProcess = exchangers.SelectMany(ob => ob.Bids).Select(o => o.Order).ToList();
