@@ -1,19 +1,17 @@
-﻿using MetaExchangeConsoleApp.Data.Providers;
-using MetaExchangeConsoleApp.Data.Repositories;
-using MetaExchangeConsoleApp.Enums;
-using MetaExchangeConsoleApp.Models;
-using MetaExchangeConsoleApp.Services;
+﻿using MetaExchange.Core.Data.Providers;
+using MetaExchange.Core.Data.Repositories;
+using MetaExchange.Core.Enums;
+using MetaExchange.Core.Models;
+using MetaExchange.Core.Services;
 
-//var dataProvider = new JsonDataProvider();
 var dataProvider = new RowDataProvider<OrderBook>();
 var orderBookRepository = new OrderBookRepository(dataProvider);
 var exchangeService = new MetaExchangeService(orderBookRepository);
-MetaExchangeRequest request = new MetaExchangeRequest();
 
-request.RequestType = AskForType();
-request.Amount = AskForAmount();
+var requestType = AskForType();
+var amount = AskForAmount();
 
-var recomendedOrders = exchangeService.GetRecommendedOrders(request);
+var recomendedOrders = exchangeService.GetRecommendedOrders(requestType, amount);
 
 OutputResults();
 
